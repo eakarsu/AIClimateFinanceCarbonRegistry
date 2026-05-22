@@ -20,6 +20,10 @@ const {
   climateClaimValidator,
   supplyCapForecast,
   scope3Attributor,
+  mrvDocumentValidate,
+  narrativeEvidenceReconcile,
+  amlScreenTransaction,
+  projectRating,
 } = require('../services/ai');
 
 async function persistResult(feature, input, output) {
@@ -74,6 +78,36 @@ router.post('/biodiversity-co-benefit',  wrap('biodiversity-co-benefit',  biodiv
 router.post('/climate-claim-validator',  wrap('climate-claim-validator',  climateClaimValidator,  ['claim']));
 router.post('/supply-cap-forecast',      wrap('supply-cap-forecast',      supplyCapForecast,      ['project_type']));
 router.post('/scope-3-attributor',       wrap('scope-3-attributor',       scope3Attributor,       ['holder']));
+
+// Pass 7: backlog implementation — 4 new AI verbs
+router.post('/mrv-document-validate',      wrap('mrv-document-validate',      mrvDocumentValidate,         ['mrv_document', 'methodology']));
+router.post('/narrative-evidence-reconcile', wrap('narrative-evidence-reconcile', narrativeEvidenceReconcile, ['narrative', 'evidence']));
+router.post('/aml-screen-transaction',     wrap('aml-screen-transaction',     amlScreenTransaction,        ['transaction']));
+router.post('/project-rating',             wrap('project-rating',             projectRating,               ['project']));
+
+// Pass 7: NEEDS-CREDS — registry interop stubs (Verra / Gold Standard / ACR / CAR)
+function registryInteropStub(registry) {
+  return (req, res) => res.status(503).json({
+    error: 'registry_interop_not_configured',
+    registry,
+    message: `${registry} registry interop adapter is not configured. Requires registry API credentials.`,
+    required_credentials: [`${registry.toUpperCase()}_API_KEY`, `${registry.toUpperCase()}_API_SECRET`],
+  });
+}
+router.post('/registry-interop/verra/sync',         registryInteropStub('verra'));
+router.post('/registry-interop/gold-standard/sync', registryInteropStub('gold-standard'));
+router.post('/registry-interop/acr/sync',           registryInteropStub('acr'));
+router.post('/registry-interop/car/sync',           registryInteropStub('car'));
+router.get('/registry-interop/status', (req, res) => {
+  res.json({
+    adapters: [
+      { registry: 'verra', configured: false, status: 'needs-credentials' },
+      { registry: 'gold-standard', configured: false, status: 'needs-credentials' },
+      { registry: 'acr', configured: false, status: 'needs-credentials' },
+      { registry: 'car', configured: false, status: 'needs-credentials' },
+    ],
+  });
+});
 
 // Sample scenarios — hardcoded inline, 5 per AI feature.
 // Each sample is { label, values: { fieldName: value, ... } } that the frontend
@@ -664,6 +698,291 @@ const SAMPLES = {
     {
       label: 'JBS S.A. (agri/meat, $73B)',
       values: { name: 'JBS S.A.', type: 'corporate', country: 'Brazil', sector: 'agriculture-meat', revenue_musd: 73000 },
+    },
+  ],
+  'mrv-document-validate': [
+    {
+      label: 'Kasigau Corridor REDD+ MRV (VM0009)',
+      values: {
+        project_name: 'Kasigau Corridor REDD+ Phase II',
+        methodology: 'VM0009',
+        monitoring_period: '2022-01-01..2022-12-31',
+        baseline_emissions_tco2e: 850000,
+        project_emissions_tco2e: 120000,
+        leakage_tco2e: 8500,
+        ndvi_delta: -0.04,
+        sampling_design: 'Permanent sample plots (PSPs) + LiDAR; 95% CI; n=380 plots',
+        notes: 'Dryland REDD+ MRV report v2.3 submitted by Wildlife Works. Independent VVB review pending.',
+      },
+    },
+    {
+      label: 'Katingan Peatland MRV (VM0007)',
+      values: {
+        project_name: 'Katingan Mentaya Peatland',
+        methodology: 'VM0007',
+        monitoring_period: '2023-Q1..2023-Q4',
+        baseline_emissions_tco2e: 7500000,
+        project_emissions_tco2e: 1200000,
+        leakage_tco2e: 95000,
+        ndvi_delta: -0.02,
+        sampling_design: 'Peat depth coring + remote sensing (Sentinel-2); biomass plots n=520',
+        notes: 'VM0007 REDD+ MF v1.6 with peatland module. Annual subsequent monitoring report.',
+      },
+    },
+    {
+      label: 'Mikoko Pamoja Blue-Carbon MRV (VM0033)',
+      values: {
+        project_name: 'Mikoko Pamoja Mangrove',
+        methodology: 'VM0033',
+        monitoring_period: '2022-01-01..2022-12-31',
+        baseline_emissions_tco2e: 4200,
+        project_emissions_tco2e: 1100,
+        leakage_tco2e: 80,
+        ndvi_delta: 0.08,
+        sampling_design: 'Mangrove biomass plots + sediment core dating; n=24 plots',
+        notes: 'Annual Plan Vivo MRV. Tide-gauge calibration; community-collected ground truth.',
+      },
+    },
+    {
+      label: 'Mata Atlântica ARR MRV (VM0047)',
+      values: {
+        project_name: 'Bahia Atlantic Forest Restoration',
+        methodology: 'VM0047',
+        monitoring_period: '2023-01-01..2023-12-31',
+        baseline_emissions_tco2e: 18000,
+        project_emissions_tco2e: 1800,
+        leakage_tco2e: 350,
+        ndvi_delta: 0.18,
+        sampling_design: 'Stratified random plots; DBH + allometric models; n=130 plots',
+        notes: 'First-period MRV report for VM0047 ARR. Targets CCB Gold biodiversity validation.',
+      },
+    },
+    {
+      label: 'Tulare Dairy Digester MRV (ACR Livestock v3.0)',
+      values: {
+        project_name: 'Tulare Dairy Methane Digester Cluster',
+        methodology: 'ACR Livestock Waste Management v3.0',
+        monitoring_period: '2023-01-01..2023-12-31',
+        baseline_emissions_tco2e: 165000,
+        project_emissions_tco2e: 12000,
+        leakage_tco2e: 0,
+        ndvi_delta: 0,
+        sampling_design: 'Continuous gas-flow meters; quarterly calibration; SCADA logs',
+        notes: 'Methane destruction via digester + RNG injection. LCFS-stackable; OPR cross-check.',
+      },
+    },
+  ],
+  'narrative-evidence-reconcile': [
+    {
+      label: 'Rimba Raya — narrative claims vs satellite',
+      values: {
+        narrative: JSON.stringify({
+          project: 'Rimba Raya Biodiversity Reserve',
+          claim: 'Protected 64,977 ha of peat-swamp forest; zero deforestation 2020-2023; community patrols expanded to 12 villages.',
+        }, null, 2),
+        evidence: JSON.stringify({
+          satellite_alerts_2020_2023: 18,
+          canopy_loss_ha: 142,
+          patrol_logs_villages_covered: 7,
+          attachments: ['quarterly_patrol_report_2022.pdf', 'sentinel2_delta_2020_2023.tif'],
+          finance_ledger_disbursements_usd: 4200000,
+        }, null, 2),
+      },
+    },
+    {
+      label: 'Kasigau Corridor — narrative vs ground-truth',
+      values: {
+        narrative: JSON.stringify({
+          project: 'Kasigau Corridor REDD+',
+          claim: 'Protected 200,000 ha against charcoal pressure; 0.3% annual deforestation rate vs 1.8% reference region; 65% benefit-share to communities.',
+        }, null, 2),
+        evidence: JSON.stringify({
+          satellite_deforestation_rate_pct: 0.42,
+          reference_region_rate_pct: 1.6,
+          benefit_share_pct_actual: 60,
+          attachments: ['community_benefit_report_2023.pdf'],
+          finance_ledger_community_disbursements_usd: 1850000,
+        }, null, 2),
+      },
+    },
+    {
+      label: 'Tumbes Mangrove — restoration claim vs imagery',
+      values: {
+        narrative: JSON.stringify({
+          project: 'Tumbes Mangrove Restoration',
+          claim: '2,750 ha restored; 1.2M seedlings planted; 78% survival rate at year 3.',
+        }, null, 2),
+        evidence: JSON.stringify({
+          satellite_mangrove_extent_delta_ha: 2120,
+          ndvi_avg_year3: 0.62,
+          attachments: ['planting_log_2022.csv', 'survival_audit_2024.pdf'],
+          ground_truth_plots_survival_pct: 71,
+        }, null, 2),
+      },
+    },
+    {
+      label: 'Hifadhi Cookstoves — adoption claim vs sales',
+      values: {
+        narrative: JSON.stringify({
+          project: 'Hifadhi Energy-Efficient Cookstoves',
+          claim: '100,000 stoves distributed across Embu/Meru; 92% sustained use at month 18.',
+        }, null, 2),
+        evidence: JSON.stringify({
+          sales_records_units: 87500,
+          usage_monitor_devices_n: 1200,
+          monitored_sustained_use_pct: 78,
+          attachments: ['sales_ledger_2023.csv', 'kitchen_survey_2024.pdf'],
+        }, null, 2),
+      },
+    },
+    {
+      label: 'Acre Jurisdictional — emissions vs PRODES',
+      values: {
+        narrative: JSON.stringify({
+          project: 'Acre Jurisdictional REDD+',
+          claim: '52% reduction in deforestation vs FREL baseline 2015-2020; 16.4M ha covered.',
+        }, null, 2),
+        evidence: JSON.stringify({
+          prodes_observed_deforestation_ha: 18200,
+          frel_baseline_ha: 31000,
+          deter_alerts_2023: 1450,
+          attachments: ['art_trees_submission_2023.pdf', 'prodes_2023_acre.geojson'],
+        }, null, 2),
+      },
+    },
+  ],
+  'aml-screen-transaction': [
+    {
+      label: 'OFAC-flagged buyer (Eurasian Carbon Exchange)',
+      values: {
+        transaction_id: 'TX-2025-11789',
+        from_holder: 'Andes Reforestation S.A.C.',
+        to_holder: 'Eurasian Carbon Exchange',
+        from_country: 'Peru',
+        to_country: 'Russia',
+        credits_amount: 35000,
+        price_per_ton_usd: 5.50,
+        payment_route_jurisdictions: 'Latvia, UAE, Cyprus',
+        notes: 'Buyer entity matches OFAC SDN beneficial-owner list (75% confidence). Wire transfer routed via three jurisdictions in 24h.',
+      },
+    },
+    {
+      label: 'Wash-trading ring (round-trips)',
+      values: {
+        transaction_id: 'TX-2025-04412',
+        from_holder: 'EcoTrade Capital LLC',
+        to_holder: 'Greenwave Holdings Pte',
+        from_country: 'Cayman Islands',
+        to_country: 'Singapore',
+        credits_amount: 50000,
+        price_per_ton_usd: 1.25,
+        payment_route_jurisdictions: 'BVI',
+        notes: 'Ten round-trip trades in 48 hours at off-market price. Typology: layering + wash-trading.',
+      },
+    },
+    {
+      label: 'Shell-buyer instant-retirement',
+      values: {
+        transaction_id: 'TX-2025-07781',
+        from_holder: 'Sumatra Forestry Carbon Ltd',
+        to_holder: 'Atlas Sustainability SPV-7',
+        from_country: 'Indonesia',
+        to_country: 'Cayman Islands',
+        credits_amount: 220000,
+        price_per_ton_usd: 4.10,
+        payment_route_jurisdictions: 'Cayman Islands',
+        notes: 'SPV registered 3 weeks ago; no ESG mandate; intends full retirement same day. Beneficial ownership opaque.',
+      },
+    },
+    {
+      label: 'PEP-linked counterparty',
+      values: {
+        transaction_id: 'TX-2025-13442',
+        from_holder: 'Orinoco Forest Holdings',
+        to_holder: 'Caribbean Climate Fund SA',
+        from_country: 'Venezuela',
+        to_country: 'Panama',
+        credits_amount: 15000,
+        price_per_ton_usd: 7.20,
+        payment_route_jurisdictions: 'Panama, Switzerland',
+        notes: 'UBO is immediate family member of Venezuelan minister (PEP screening). Source-of-funds documentation incomplete.',
+      },
+    },
+    {
+      label: 'Clean transaction (low risk)',
+      values: {
+        transaction_id: 'TX-2025-15500',
+        from_holder: 'Verra Registered Holder #12381',
+        to_holder: 'Microsoft Corporation',
+        from_country: 'Brazil',
+        to_country: 'United States',
+        credits_amount: 8500,
+        price_per_ton_usd: 18.50,
+        payment_route_jurisdictions: 'United States',
+        notes: 'Both parties KYC-verified; standard ARR project credits; market price; documented retirement intent.',
+      },
+    },
+  ],
+  'project-rating': [
+    {
+      label: 'Katingan Peatland (Indonesia, REDD+)',
+      values: {
+        name: 'Katingan Mentaya Peatland',
+        type: 'avoided-deforestation',
+        country: 'Indonesia',
+        hectares: 149800,
+        methodology: 'VM0007',
+        vintage_range: '2010-2024',
+        description: 'Peat-swamp REDD+ with strong additionality (palm-oil counterfactual), VVB-verified MRV, CCB Triple Gold, but elevated reversal risk from peat fires.',
+      },
+    },
+    {
+      label: 'Kasigau Corridor REDD+ (Kenya)',
+      values: {
+        name: 'Kasigau Corridor REDD+',
+        type: 'avoided-deforestation',
+        country: 'Kenya',
+        hectares: 200000,
+        methodology: 'VM0009',
+        vintage_range: '2011-2024',
+        description: 'Dryland REDD+ with community land trust governance, biodiversity corridor between Tsavo NPs. Past over-crediting concerns flagged; remediated baseline.',
+      },
+    },
+    {
+      label: 'Mata Atlântica ARR (Brazil)',
+      values: {
+        name: 'Bahia Atlantic Forest Restoration',
+        type: 'afforestation-reforestation',
+        country: 'Brazil',
+        hectares: 8400,
+        methodology: 'VM0047',
+        vintage_range: '2020-2024',
+        description: 'Native-species ARR on degraded pasture; 130+ species; 20% buffer pool; CCB Gold for biodiversity; clear financial additionality.',
+      },
+    },
+    {
+      label: 'Tulare Dairy Methane (USA)',
+      values: {
+        name: 'Tulare Dairy Methane Digester Cluster',
+        type: 'methane-capture',
+        country: 'United States',
+        hectares: 0,
+        methodology: 'ACR Livestock Waste Management v3.0',
+        vintage_range: '2019-2024',
+        description: 'Anaerobic digester at 12 dairies; continuous gas-flow monitoring; LCFS-stackable. Regulatory-surplus contested in CA dairy methane policy environment.',
+      },
+    },
+    {
+      label: 'Mikoko Pamoja Blue-Carbon (Kenya)',
+      values: {
+        name: 'Mikoko Pamoja Mangrove',
+        type: 'blue-carbon',
+        country: 'Kenya',
+        hectares: 117,
+        methodology: 'VM0033',
+        vintage_range: '2014-2024',
+        description: 'Community-managed mangrove blue-carbon; Plan Vivo; strong social co-benefits; small scale but high-integrity MRV; durable permanence.',
+      },
     },
   ],
 };

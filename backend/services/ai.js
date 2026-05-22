@@ -342,6 +342,86 @@ Schema:
   return safeJsonParse(r, { summary: '' });
 }
 
+// ─── 17. AI MRV-Document Validator ───
+async function mrvDocumentValidate(mrv_document, methodology) {
+  const sys = `${REGISTRY_SYSTEM_PROMPT}
+Schema:
+{
+  "validity": "valid"|"partially-valid"|"invalid",
+  "methodology_compliance_score": number,
+  "structured_checks": [{ "rule": string, "section": string, "status": "pass"|"fail"|"unclear", "evidence": string }],
+  "missing_sections": [string],
+  "data_quality_issues": [{ "issue": string, "severity": "low"|"medium"|"high" }],
+  "remediation_actions": [string],
+  "summary": string
+}`;
+  const user = `Validate this MRV document against methodology ${methodology}:\n${JSON.stringify(mrv_document, null, 2)}`;
+  const r = await callOpenRouter(sys, user);
+  return safeJsonParse(r, { validity: 'partially-valid', summary: '' });
+}
+
+// ─── 18. AI Narrative-vs-Evidence Reconcile ───
+async function narrativeEvidenceReconcile(narrative, evidence) {
+  const sys = `${REGISTRY_SYSTEM_PROMPT}
+Schema:
+{
+  "reconciliation_status": "consistent"|"partial-discrepancy"|"contradictory",
+  "consistency_score": number,
+  "narrative_claims": [{ "claim": string, "supported_by": [string], "contradicted_by": [string], "confidence": number }],
+  "unverified_claims": [string],
+  "evidence_gaps": [string],
+  "red_flags": [string],
+  "summary": string
+}`;
+  const user = `Reconcile project narrative against supporting evidence (attachments/satellite/ledger).\nNarrative:\n${JSON.stringify(narrative, null, 2)}\nEvidence:\n${JSON.stringify(evidence, null, 2)}`;
+  const r = await callOpenRouter(sys, user);
+  return safeJsonParse(r, { reconciliation_status: 'partial-discrepancy', summary: '' });
+}
+
+// ─── 19. AI AML Transaction Screening ───
+async function amlScreenTransaction(transaction) {
+  const sys = `${REGISTRY_SYSTEM_PROMPT}
+Schema:
+{
+  "aml_risk_score": number,
+  "risk_band": "low"|"medium"|"high"|"critical",
+  "sanctions_hits": [{ "list": "OFAC-SDN"|"UN"|"EU"|"UK-HMT"|"PEP", "entity": string, "match_confidence": number }],
+  "typology_flags": [{ "typology": "wash-trading"|"layering"|"structuring"|"shell-buyer"|"trade-based-ML", "evidence": string }],
+  "geographic_risk": { "high_risk_jurisdictions": [string], "fatf_grey_list_exposure": boolean },
+  "recommended_action": "approve"|"enhanced-due-diligence"|"freeze"|"file-SAR",
+  "summary": string
+}`;
+  const user = `Screen this carbon-credit transaction for AML / sanctions / PEP / typology risks:\n${JSON.stringify(transaction, null, 2)}`;
+  const r = await callOpenRouter(sys, user);
+  return safeJsonParse(r, { aml_risk_score: 50, risk_band: 'medium', summary: '' });
+}
+
+// ─── 20. AI Project Composite Rating ───
+async function projectRating(project) {
+  const sys = `${REGISTRY_SYSTEM_PROMPT}
+Schema:
+{
+  "composite_grade": "AAA"|"AA"|"A"|"BBB"|"BB"|"B"|"C"|"D",
+  "composite_score": number,
+  "sub_scores": {
+    "additionality": number,
+    "permanence": number,
+    "leakage_control": number,
+    "co_benefits": number,
+    "mrv_quality": number,
+    "governance": number
+  },
+  "peer_comparison": { "peer_group": string, "percentile": number },
+  "ccp_eligibility": "yes"|"no"|"pending",
+  "strengths": [string],
+  "weaknesses": [string],
+  "summary": string
+}`;
+  const user = `Produce a composite BeZero/Sylvera-style rating for this carbon project:\n${JSON.stringify(project, null, 2)}`;
+  const r = await callOpenRouter(sys, user);
+  return safeJsonParse(r, { composite_grade: 'BBB', summary: '' });
+}
+
 module.exports = {
   callOpenRouter,
   safeJsonParse,
@@ -361,4 +441,8 @@ module.exports = {
   climateClaimValidator,
   supplyCapForecast,
   scope3Attributor,
+  mrvDocumentValidate,
+  narrativeEvidenceReconcile,
+  amlScreenTransaction,
+  projectRating,
 };

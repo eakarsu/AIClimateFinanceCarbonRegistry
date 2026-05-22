@@ -21,6 +21,10 @@ const crudLinks = [
   { path: '/claims', label: 'Claims', icon: 'L' },
   { path: '/biodiversity-cobenefits', label: 'Biodiversity', icon: 'D' },
   { path: '/finance-ledger', label: 'Finance Ledger', icon: 'F' },
+  { path: '/corresponding-adjustments', label: 'Art.6 Adjustments', icon: '6' },
+  { path: '/project-ratings', label: 'Project Ratings', icon: 'Q' },
+  { path: '/retirement-certificate-pack', label: 'Certificate Pack', icon: 'R' },
+  { path: '/issuance-chain', label: 'Issuance Chain', icon: '#' },
 ];
 
 const aiLinks = [
@@ -40,12 +44,17 @@ const aiLinks = [
   { path: '/ai/climate-claim-validator', label: 'Claim Validator' },
   { path: '/ai/supply-cap-forecast', label: 'Supply Cap Forecast' },
   { path: '/ai/scope-3-attributor', label: 'Scope-3 Attributor' },
+  { path: '/ai/mrv-document-validate', label: 'MRV Doc Validator' },
+  { path: '/ai/narrative-evidence-reconcile', label: 'Narrative-Evidence' },
+  { path: '/ai/aml-screen-transaction', label: 'AML Screening' },
+  { path: '/ai/project-rating', label: 'Project Rating' },
 ];
 
 const opsLinks = [
   { path: '/notifications', label: 'Notifications', icon: 'N' },
   { path: '/webhooks', label: 'Webhooks', icon: 'W' },
   { path: '/bulk-import', label: 'Bulk Import', icon: 'U' },
+  { path: '/registry-interop', label: 'Registry Interop', icon: 'X' },
 ];
 
 function Sidebar({ onNavigate }) {

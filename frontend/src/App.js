@@ -53,9 +53,26 @@ import BulkImportPage from './pages/BulkImportPage';
 // Custom Climate Views (4 features)
 import CustomViewsPage from './pages/CustomViewsPage';
 
+// Pass 7: backlog implementation
+import AIMRVDocumentValidatePage from './pages/AIMRVDocumentValidatePage';
+import AINarrativeEvidenceReconcilePage from './pages/AINarrativeEvidenceReconcilePage';
+import AIAMLScreenTransactionPage from './pages/AIAMLScreenTransactionPage';
+import AIProjectRatingPage from './pages/AIProjectRatingPage';
+import CorrespondingAdjustmentsPage from './pages/CorrespondingAdjustmentsPage';
+import ProjectRatingsPage from './pages/ProjectRatingsPage';
+import PublicRetirementLookupPage from './pages/PublicRetirementLookupPage';
+import RegistryInteropPage from './pages/RegistryInteropPage';
+import IssuanceChainPage from './pages/IssuanceChainPage';
+import RetirementCertificatePackPage from './pages/RetirementCertificatePackPage';
+
 import LoginPage from './pages/LoginPage';
 import { isAuthenticated } from './services/api';
 import './App.css';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
 
 function RequireAuth({ children }) {
   const location = useLocation();
@@ -87,10 +104,15 @@ function AppRoutes() {
   const location = useLocation();
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
 
-  if (location.pathname === '/login') {
+  if (location.pathname === '/login' || location.pathname === '/public/retirements') {
     return (
       <Routes>
+        <Route path="/insights/timeline" element={<TimelineView />} />
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/public/retirements" element={<PublicRetirementLookupPage />} />
       </Routes>
     );
   }
@@ -143,6 +165,18 @@ function AppRoutes() {
         <Route path="/bulk-import" element={<RequireAuth><BulkImportPage /></RequireAuth>} />
 
         <Route path="/custom-views" element={<RequireAuth><CustomViewsPage /></RequireAuth>} />
+
+        {/* Pass 7: backlog implementation */}
+        <Route path="/ai/mrv-document-validate" element={<RequireAuth><AIMRVDocumentValidatePage /></RequireAuth>} />
+        <Route path="/ai/narrative-evidence-reconcile" element={<RequireAuth><AINarrativeEvidenceReconcilePage /></RequireAuth>} />
+        <Route path="/ai/aml-screen-transaction" element={<RequireAuth><AIAMLScreenTransactionPage /></RequireAuth>} />
+        <Route path="/ai/project-rating" element={<RequireAuth><AIProjectRatingPage /></RequireAuth>} />
+        <Route path="/corresponding-adjustments" element={<RequireAuth><CorrespondingAdjustmentsPage /></RequireAuth>} />
+        <Route path="/project-ratings" element={<RequireAuth><ProjectRatingsPage /></RequireAuth>} />
+        <Route path="/registry-interop" element={<RequireAuth><RegistryInteropPage /></RequireAuth>} />
+        <Route path="/issuance-chain" element={<RequireAuth><IssuanceChainPage /></RequireAuth>} />
+        <Route path="/retirement-certificate-pack" element={<RequireAuth><RetirementCertificatePackPage /></RequireAuth>} />
+        <Route path="/public/retirements" element={<PublicRetirementLookupPage />} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

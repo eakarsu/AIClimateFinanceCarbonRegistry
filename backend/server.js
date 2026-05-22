@@ -31,6 +31,9 @@ app.get('/api/health', (req, res) => {
 // Auth routes (public)
 app.use('/api/auth', require('./routes/auth'));
 
+// Public routes (no JWT) — Pass 7: public retirement search + read-only chain
+app.use('/api/public', require('./routes/public'));
+
 // Gate all other /api/* with JWT
 app.use('/api', authenticateToken);
 
@@ -70,6 +73,12 @@ app.use('/api/dashboard', require('./routes/dashboard'));
 
 // Custom Climate Views (4 features) — must mount BEFORE the 404 handler
 app.use('/api/custom-views', require('./routes/customViews'));
+
+// Pass 7: backlog implementation routes (must mount BEFORE the 404 handler)
+app.use('/api/issuance-chain', require('./routes/issuance-chain'));
+app.use('/api/corresponding-adjustments', require('./routes/corresponding-adjustments'));
+app.use('/api/project-ratings', require('./routes/project-ratings'));
+app.use('/api/retirement-certificate-pack', require('./routes/retirementCertificatePack'));
 
 // 404 for unknown /api/* routes
 app.use('/api', (req, res) => {

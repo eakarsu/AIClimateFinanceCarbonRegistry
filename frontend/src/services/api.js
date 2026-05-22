@@ -135,6 +135,48 @@ export const aiClimateClaimValidator= (claim) => request('/ai/climate-claim-vali
 export const aiSupplyCapForecast    = (project_type) => request('/ai/supply-cap-forecast', { method: 'POST', body: JSON.stringify({ project_type }) });
 export const aiScope3Attributor     = (holder) => request('/ai/scope-3-attributor',     { method: 'POST', body: JSON.stringify({ holder }) });
 
+// AI — Pass 7 (full backlog)
+export const aiMrvDocumentValidate       = (mrv_document, methodology) => request('/ai/mrv-document-validate', { method: 'POST', body: JSON.stringify({ mrv_document, methodology }) });
+export const aiNarrativeEvidenceReconcile = (narrative, evidence) => request('/ai/narrative-evidence-reconcile', { method: 'POST', body: JSON.stringify({ narrative, evidence }) });
+export const aiAmlScreenTransaction      = (transaction) => request('/ai/aml-screen-transaction', { method: 'POST', body: JSON.stringify({ transaction }) });
+export const aiProjectRating             = (project) => request('/ai/project-rating', { method: 'POST', body: JSON.stringify({ project }) });
+export const draftRetirementCertificatePack = (body) => request('/retirement-certificate-pack/draft', { method: 'POST', body: JSON.stringify(body || {}) });
+
+// Registry interop (NEEDS-CREDS stubs — return 503 until configured)
+export const registryInteropStatus = () => request('/ai/registry-interop/status');
+export const registryInteropSync   = (registry, body = {}) =>
+  request(`/ai/registry-interop/${registry}/sync`, { method: 'POST', body: JSON.stringify(body) });
+
+// Pass 7 CRUD APIs
+export const correspondingAdjustmentsApi = crud('/corresponding-adjustments');
+export const projectRatingsApi           = crud('/project-ratings');
+
+// Issuance hash-chain
+export const issuanceChainList   = () => request('/issuance-chain');
+export const issuanceChainHead   = () => request('/issuance-chain/head');
+export const issuanceChainSeal   = () => request('/issuance-chain/seal', { method: 'POST', body: JSON.stringify({}) });
+export const issuanceChainVerify = () => request('/issuance-chain/verify');
+
+// Public retirement lookup (no auth)
+const PUBLIC_API_BASE = API_BASE.replace(/\/api$/, '/api');
+export const publicRetirementLookup = async (serial) => {
+  const res = await fetch(`${PUBLIC_API_BASE}/public/retirements/${encodeURIComponent(serial)}`);
+  const text = await res.text();
+  let data; try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { raw: text }; }
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+};
+export const publicRetirementSearch = async (beneficiary, limit = 25) => {
+  const qs = new URLSearchParams();
+  if (beneficiary) qs.set('beneficiary', beneficiary);
+  if (limit) qs.set('limit', String(limit));
+  const res = await fetch(`${PUBLIC_API_BASE}/public/retirements?${qs.toString()}`);
+  const text = await res.text();
+  let data; try { data = text ? JSON.parse(text) : {}; } catch (e) { data = { raw: text }; }
+  if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+  return data;
+};
+
 // AI history
 export const aiHistory = (feature) => {
   const qs = feature ? `?feature=${encodeURIComponent(feature)}` : '';
