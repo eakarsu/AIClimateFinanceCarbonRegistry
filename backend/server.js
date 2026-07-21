@@ -6,7 +6,7 @@ require('dotenv').config({ path: '../.env' });
 const { authenticateToken } = require('./middleware/auth');
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3041;
+const PORT = process.env.BACKEND_PORT || 3051;
 
 // Middleware
 app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
@@ -16,12 +16,12 @@ app.use(cors({
   origin: (origin, cb) => {
     if (!origin) return cb(null, true);
     if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(null, true); // permissive in dev
+    return cb(new Error(`Origin ${origin} not allowed by CORS`));
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
 // Health check (public)
 app.get('/api/health', (req, res) => {
@@ -32,10 +32,22 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', require('./routes/auth'));
 
 // Public routes (no JWT) — Pass 7: public retirement search + read-only chain
-app.use('/api/public', require('./routes/public'));
+if (process.env.ENABLE_PUBLIC_REGISTRY === 'true') {
+  app.use('/api/public', require('./routes/public'));
+}
 
 // Gate all other /api/* with JWT
 app.use('/api', authenticateToken);
+
+// Governed, tenant-scoped registry lifecycle. This is the production reference path.
+app.use('/api/governed-registry', require('./routes/governedRegistry'));
+
+if (process.env.ENABLE_LEGACY_GLOBAL_ROUTES !== 'true') {
+  app.use('/api', (req, res) => res.status(404).json({
+    error: 'legacy_routes_disabled',
+    message: 'Use /api/governed-registry or explicitly enable legacy global routes after a tenant-isolation review.',
+  }));
+} else {
 
 // CRUD routes — original 8
 app.use('/api/projects', require('./routes/projects'));
@@ -79,6 +91,7 @@ app.use('/api/issuance-chain', require('./routes/issuance-chain'));
 app.use('/api/corresponding-adjustments', require('./routes/corresponding-adjustments'));
 app.use('/api/project-ratings', require('./routes/project-ratings'));
 app.use('/api/retirement-certificate-pack', require('./routes/retirementCertificatePack'));
+}
 
 // 404 for unknown /api/* routes
 app.use('/api', (req, res) => {

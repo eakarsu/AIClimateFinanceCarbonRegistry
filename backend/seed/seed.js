@@ -1,3 +1,7 @@
+if (process.env.ALLOW_DEMO_SEED !== 'true') {
+  throw new Error('Destructive demo seed disabled. Set ALLOW_DEMO_SEED=true only for a disposable database.');
+}
+
 const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +13,7 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
   database: process.env.DB_NAME || 'carbon_registry',
   user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  password: process.env.DB_PASSWORD,
 });
 
 async function seed() {
@@ -17,6 +21,15 @@ async function seed() {
   try {
     console.log('[seed] dropping & recreating tables...');
     await client.query(`
+      DROP TABLE IF EXISTS registry_events CASCADE;
+      DROP TABLE IF EXISTS registry_retirements CASCADE;
+      DROP TABLE IF EXISTS registry_credit_lots CASCADE;
+      DROP TABLE IF EXISTS registry_verifications CASCADE;
+      DROP TABLE IF EXISTS registry_measurements CASCADE;
+      DROP TABLE IF EXISTS governed_registry_projects CASCADE;
+      DROP TABLE IF EXISTS project_ratings CASCADE;
+      DROP TABLE IF EXISTS corresponding_adjustments CASCADE;
+      DROP TABLE IF EXISTS issuance_hash_chain CASCADE;
       DROP TABLE IF EXISTS webhook_deliveries CASCADE;
       DROP TABLE IF EXISTS webhooks CASCADE;
       DROP TABLE IF EXISTS attachments CASCADE;
@@ -43,10 +56,11 @@ async function seed() {
       DROP TABLE IF EXISTS ai_results CASCADE;
     `);
 
-    const schema1 = fs.readFileSync(path.join(__dirname, '../migrations/001_schema.sql'), 'utf8');
-    await client.query(schema1);
-    const schema2 = fs.readFileSync(path.join(__dirname, '../migrations/002_extensions.sql'), 'utf8');
-    await client.query(schema2);
+    const migrationsDirectory = path.join(__dirname, '../migrations');
+    for (const filename of fs.readdirSync(migrationsDirectory).filter((name) => name.endsWith('.sql')).sort()) {
+      const migration = fs.readFileSync(path.join(migrationsDirectory, filename), 'utf8');
+      await client.query(migration);
+    }
 
     // ---------- USERS (RBAC) ----------
     const users = [

@@ -5,24 +5,15 @@ const jwt = require('jsonwebtoken');
 const pool = require('../config/database');
 const { JWT_SECRET, authenticateToken } = require('../middleware/auth');
 
-// Fallback in-memory admin (used only if users table is missing or empty).
-const FALLBACK_USER = {
-  id: 1,
-  email: 'registry@carbon.io',
-  name: 'Registry Admin',
-  role: 'admin',
-  passwordHash: bcrypt.hashSync('carbon2026', 10),
-};
-
 async function findUserByEmail(email) {
-  try {
-    const r = await pool.query('SELECT * FROM users WHERE LOWER(email)=LOWER($1) LIMIT 1', [email]);
-    if (r.rows.length) {
-      const u = r.rows[0];
-      return { id: u.id, email: u.email, name: u.name, role: u.role, passwordHash: u.password_hash };
-    }
-  } catch (_) { /* table may not exist yet */ }
-  if (email.toLowerCase() === FALLBACK_USER.email.toLowerCase()) return FALLBACK_USER;
+  const r = await pool.query(
+    'SELECT id, email, name, role, tenant_id, password_hash FROM users WHERE LOWER(email)=LOWER($1) LIMIT 1',
+    [email]
+  );
+  if (r.rows.length) {
+    const u = r.rows[0];
+    return { id: u.id, email: u.email, name: u.name, role: u.role, tenantId: u.tenant_id, passwordHash: u.password_hash };
+  }
   return null;
 }
 
@@ -37,17 +28,17 @@ router.post('/login', async (req, res) => {
     if (!ok) return res.status(401).json({ error: 'Invalid email or password' });
 
     const token = jwt.sign(
-      { id: user.id, email: user.email, name: user.name, role: user.role },
+      { id: user.id, email: user.email, name: user.name, role: user.role, tenant_id: user.tenantId },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
     res.json({
       token,
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      user: { id: user.id, email: user.email, name: user.name, role: user.role, tenant_id: user.tenantId },
     });
   } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).json({ error: 'Server error' });
+    console.error('Login error:', err.message);
+    res.status(503).json({ error: 'Authentication service unavailable' });
   }
 });
 
