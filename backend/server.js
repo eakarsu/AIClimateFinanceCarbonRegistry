@@ -41,6 +41,7 @@ app.use('/api', authenticateToken);
 
 // Governed, tenant-scoped registry lifecycle. This is the production reference path.
 app.use('/api/governed-registry', require('./routes/governedRegistry'));
+app.use('/api/ai', require('./routes/ai'));
 
 if (process.env.ENABLE_LEGACY_GLOBAL_ROUTES !== 'true') {
   app.use('/api', (req, res) => res.status(404).json({
@@ -76,9 +77,6 @@ app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/attachments', require('./routes/attachments'));
 app.use('/api/webhooks', require('./routes/webhooks'));
 app.use('/api/bulk-import', require('./routes/bulk-import'));
-
-// AI routes
-app.use('/api/ai', require('./routes/ai'));
 
 // Dashboard stats
 app.use('/api/dashboard', require('./routes/dashboard'));

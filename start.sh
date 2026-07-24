@@ -7,6 +7,7 @@ if [[ ! -f "$ROOT_DIR/.env" ]]; then
   echo "Missing .env. Copy .env.example and configure it first." >&2
   exit 1
 fi
+set -a; . "$ROOT_DIR/.env"; set +a
 BACKEND_PORT="${BACKEND_PORT:-3051}"
 FRONTEND_PORT="${FRONTEND_PORT:-3050}"
 ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-http://127.0.0.1:$FRONTEND_PORT,http://localhost:$FRONTEND_PORT}"
@@ -21,6 +22,11 @@ for port in "$BACKEND_PORT" "$FRONTEND_PORT"; do
     exit 1
   fi
 done
+
+if [[ "${MIGRATE_ON_START:-false}" == true ]]; then
+  (cd "$ROOT_DIR/backend" && npm run migrate)
+  (cd "$ROOT_DIR/backend" && npm run create-admin)
+fi
 
 (cd "$ROOT_DIR/backend" && npm start) & backend_pid=$!
 (cd "$ROOT_DIR/frontend" && BROWSER=none PORT="$FRONTEND_PORT" REACT_APP_API_BASE="http://127.0.0.1:$BACKEND_PORT/api" npm start) & frontend_pid=$!

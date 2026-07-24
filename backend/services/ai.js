@@ -4,13 +4,14 @@ const REGISTRY_SYSTEM_PROMPT =
   'You are an expert voluntary carbon market analyst, MRV specialist, and registry integrity officer. ' +
   'You apply rigorous standards (Verra VCS, Gold Standard, ACR) and structured reasoning grounded in CCQI/ICVCM Core Carbon Principles. ' +
   'Always return STRICT, MINIFIED JSON matching the requested schema. No prose outside JSON.';
+const OPENROUTER_BASE_URL = (process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/$/, '');
 
 async function callOpenRouter(systemPrompt, userPrompt) {
   if (!OPENROUTER_API_KEY) {
     return { error: 'OPENROUTER_API_KEY not configured' };
   }
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const res = await fetch(`${OPENROUTER_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
