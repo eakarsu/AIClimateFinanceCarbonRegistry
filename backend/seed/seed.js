@@ -16,6 +16,12 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
 });
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_PASSWORD || process.env.SEED_DEMO_PASSWORD || process.env.DEMO_SEED_PASSWORD || '';
+  if (password.length < 12 || password.length > 1024) throw new Error('DEMO_PASSWORD must contain 12-1024 characters');
+  return password;
+}
+
 async function seed() {
   const client = await pool.connect();
   try {
@@ -69,7 +75,7 @@ async function seed() {
       ['auditor@carbon.io', 'Marcus Auditor', 'auditor'],
     ];
     for (const [email, name, role] of users) {
-      const hash = bcrypt.hashSync('carbon2026', 10);
+      const hash = bcrypt.hashSync(requireDemoPassword(), 10);
       await client.query(
         `INSERT INTO users (email, name, password_hash, role) VALUES ($1,$2,$3,$4)
          ON CONFLICT (email) DO UPDATE SET name=EXCLUDED.name, password_hash=EXCLUDED.password_hash, role=EXCLUDED.role`,
