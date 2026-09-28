@@ -104,7 +104,7 @@ if [[ "${MIGRATE_ON_START:-false}" == true ]]; then
 fi
 
 (cd "$ROOT_DIR/backend" && npm start) & backend_pid=$!
-(cd "$ROOT_DIR/frontend" && BROWSER=none PORT="$FRONTEND_PORT" REACT_APP_API_BASE="http://127.0.0.1:$BACKEND_PORT/api" npm start) & frontend_pid=$!
+(cd "$ROOT_DIR/frontend" && BROWSER=none PORT="$FRONTEND_PORT" REACT_APP_API_BASE="/api" npm start) & frontend_pid=$!
 cleanup() {
   kill "$backend_pid" "$frontend_pid" 2>/dev/null || true
   wait "$backend_pid" "$frontend_pid" 2>/dev/null || true

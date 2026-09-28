@@ -1,7 +1,6 @@
 // Default to backend on 3051 (matches .env), allow override via env or window.
 const API_BASE =
-  (typeof process !== 'undefined' && process.env && process.env.REACT_APP_API_BASE) ||
-  'http://localhost:3051/api';
+  process.env.REACT_APP_API_BASE || '/api';
 
 function getToken() { return localStorage.getItem('cr_token'); }
 function setToken(token) { if (token) localStorage.setItem('cr_token', token); else localStorage.removeItem('cr_token'); }
