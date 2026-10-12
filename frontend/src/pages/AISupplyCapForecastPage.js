@@ -13,7 +13,7 @@ export default function AISupplyCapForecastPage() {
       subtitle="Project supply curve over 5 years + cap-shortfall risk + policy levers."
       fields={fields}
       buildPayload={(v) => ({ project_type: v.project_type })}
-      runAI={({ project_type }) => aiSupplyCapForecast(project_type)}
+      runAI={({ project_type }, requestOptions) => aiSupplyCapForecast(project_type, requestOptions)}
       examplePrompt="Pick a project type. AI returns 5-year supply forecast + cap-shortfall risk."
       feature="supply-cap-forecast"
     />

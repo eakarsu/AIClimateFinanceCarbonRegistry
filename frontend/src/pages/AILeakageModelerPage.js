@@ -17,7 +17,7 @@ export default function AILeakageModelerPage() {
       subtitle="Quantify leakage class, expected percentage, and sensitivity drivers."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiLeakageModeler(project)}
+      runAI={(project, requestOptions) => aiLeakageModeler(project, requestOptions)}
       examplePrompt="Describe a project. AI returns a leakage model with sensitivity to key drivers."
       feature="leakage-modeler"
     />

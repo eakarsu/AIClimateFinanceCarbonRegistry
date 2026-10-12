@@ -19,7 +19,7 @@ export default function AIProjectRatingPage() {
       subtitle="BeZero / Sylvera-style composite grade — additionality + permanence + leakage + co-benefits + MRV quality + governance."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiProjectRating(project)}
+      runAI={(project, requestOptions) => aiProjectRating(project, requestOptions)}
       examplePrompt="Describe a carbon project. AI returns AAA-D composite grade + sub-scores + peer comparison."
       feature="project-rating"
     />

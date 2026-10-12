@@ -24,7 +24,7 @@ export default function AIMRVDocumentValidatePage() {
         const { methodology, ...rest } = v;
         return { mrv_document: rest, methodology };
       }}
-      runAI={({ mrv_document, methodology }) => aiMrvDocumentValidate(mrv_document, methodology)}
+      runAI={({ mrv_document, methodology }, requestOptions) => aiMrvDocumentValidate(mrv_document, methodology, requestOptions)}
       examplePrompt="Describe an MRV submission. AI checks methodology compliance + structured rule pass/fail."
       feature="mrv-document-validate"
     />

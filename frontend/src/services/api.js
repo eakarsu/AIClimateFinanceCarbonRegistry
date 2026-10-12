@@ -117,34 +117,33 @@ export const updateIssuance   = issuancesApi.update;
 export const deleteIssuance   = issuancesApi.remove;
 
 // AI (16 total)
-export const aiVerifyProject        = (project) => request('/ai/verify-project',        { method: 'POST', body: JSON.stringify({ project }) });
-export const aiSynthesizeMRV        = (project) => request('/ai/synthesize-mrv',        { method: 'POST', body: JSON.stringify({ project }) });
-export const aiDetectFraud          = (transaction) => request('/ai/detect-fraud',      { method: 'POST', body: JSON.stringify({ transaction }) });
-export const aiAnalyzePricing       = (project_type, vintage) => request('/ai/analyze-pricing', { method: 'POST', body: JSON.stringify({ project_type, vintage }) });
-export const aiMapMethodology       = (project) => request('/ai/map-methodology',       { method: 'POST', body: JSON.stringify({ project }) });
-export const aiDraftDisclosure      = (holder) => request('/ai/draft-disclosure',       { method: 'POST', body: JSON.stringify({ holder }) });
-export const aiLeakageModeler       = (project) => request('/ai/leakage-modeler',       { method: 'POST', body: JSON.stringify({ project }) });
-export const aiSatelliteMRV         = (project, imagery_period) => request('/ai/satellite-mrv', { method: 'POST', body: JSON.stringify({ project, imagery_period }) });
-export const aiDoubleCountingDetect = (credit) => request('/ai/double-counting-detect', { method: 'POST', body: JSON.stringify({ credit }) });
-export const aiAdditionalityScorer  = (project) => request('/ai/additionality-scorer',  { method: 'POST', body: JSON.stringify({ project }) });
-export const aiRegistryArbitrage    = (project_type) => request('/ai/registry-arbitrage', { method: 'POST', body: JSON.stringify({ project_type }) });
-export const aiPriceDiscovery       = (project_type, vintage) => request('/ai/price-discovery', { method: 'POST', body: JSON.stringify({ project_type, vintage }) });
-export const aiBiodiversityCoBenefit= (project) => request('/ai/biodiversity-co-benefit',{ method: 'POST', body: JSON.stringify({ project }) });
-export const aiClimateClaimValidator= (claim) => request('/ai/climate-claim-validator', { method: 'POST', body: JSON.stringify({ claim }) });
-export const aiSupplyCapForecast    = (project_type) => request('/ai/supply-cap-forecast', { method: 'POST', body: JSON.stringify({ project_type }) });
-export const aiScope3Attributor     = (holder) => request('/ai/scope-3-attributor',     { method: 'POST', body: JSON.stringify({ holder }) });
+export const aiVerifyProject        = (project, options = {}) => request('/ai/verify-project',        { ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiSynthesizeMRV        = (project, options = {}) => request('/ai/synthesize-mrv',        { ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiDetectFraud          = (transaction, options = {}) => request('/ai/detect-fraud',      { ...options, method: 'POST', body: JSON.stringify({ transaction }) });
+export const aiAnalyzePricing       = (project_type, vintage, options = {}) => request('/ai/analyze-pricing', { ...options, method: 'POST', body: JSON.stringify({ project_type, vintage }) });
+export const aiMapMethodology       = (project, options = {}) => request('/ai/map-methodology',       { ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiDraftDisclosure      = (holder, options = {}) => request('/ai/draft-disclosure',       { ...options, method: 'POST', body: JSON.stringify({ holder }) });
+export const aiLeakageModeler       = (project, options = {}) => request('/ai/leakage-modeler',       { ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiSatelliteMRV         = (project, imagery_period, options = {}) => request('/ai/satellite-mrv', { ...options, method: 'POST', body: JSON.stringify({ project, imagery_period }) });
+export const aiDoubleCountingDetect = (credit, options = {}) => request('/ai/double-counting-detect', { ...options, method: 'POST', body: JSON.stringify({ credit }) });
+export const aiAdditionalityScorer  = (project, options = {}) => request('/ai/additionality-scorer',  { ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiRegistryArbitrage    = (project_type, options = {}) => request('/ai/registry-arbitrage', { ...options, method: 'POST', body: JSON.stringify({ project_type }) });
+export const aiPriceDiscovery       = (project_type, vintage, options = {}) => request('/ai/price-discovery', { ...options, method: 'POST', body: JSON.stringify({ project_type, vintage }) });
+export const aiBiodiversityCoBenefit= (project, options = {}) => request('/ai/biodiversity-co-benefit',{ ...options, method: 'POST', body: JSON.stringify({ project }) });
+export const aiClimateClaimValidator= (claim, options = {}) => request('/ai/climate-claim-validator', { ...options, method: 'POST', body: JSON.stringify({ claim }) });
+export const aiSupplyCapForecast    = (project_type, options = {}) => request('/ai/supply-cap-forecast', { ...options, method: 'POST', body: JSON.stringify({ project_type }) });
+export const aiScope3Attributor     = (holder, options = {}) => request('/ai/scope-3-attributor',     { ...options, method: 'POST', body: JSON.stringify({ holder }) });
 
 // AI — Pass 7 (full backlog)
-export const aiMrvDocumentValidate       = (mrv_document, methodology) => request('/ai/mrv-document-validate', { method: 'POST', body: JSON.stringify({ mrv_document, methodology }) });
-export const aiNarrativeEvidenceReconcile = (narrative, evidence) => request('/ai/narrative-evidence-reconcile', { method: 'POST', body: JSON.stringify({ narrative, evidence }) });
-export const aiAmlScreenTransaction      = (transaction) => request('/ai/aml-screen-transaction', { method: 'POST', body: JSON.stringify({ transaction }) });
-export const aiProjectRating             = (project) => request('/ai/project-rating', { method: 'POST', body: JSON.stringify({ project }) });
+export const aiMrvDocumentValidate       = (mrv_document, methodology, options = {}) => request('/ai/mrv-document-validate', { ...options, method: 'POST', body: JSON.stringify({ mrv_document, methodology }) });
+export const aiNarrativeEvidenceReconcile = (narrative, evidence, options = {}) => request('/ai/narrative-evidence-reconcile', { ...options, method: 'POST', body: JSON.stringify({ narrative, evidence }) });
+export const aiAmlScreenTransaction      = (transaction, options = {}) => request('/ai/aml-screen-transaction', { ...options, method: 'POST', body: JSON.stringify({ transaction }) });
+export const aiProjectRating             = (project, options = {}) => request('/ai/project-rating', { ...options, method: 'POST', body: JSON.stringify({ project }) });
 export const draftRetirementCertificatePack = (body) => request('/retirement-certificate-pack/draft', { method: 'POST', body: JSON.stringify(body || {}) });
 
 // Registry interop (NEEDS-CREDS stubs — return 503 until configured)
 export const registryInteropStatus = () => request('/ai/registry-interop/status');
-export const registryInteropSync   = (registry, body = {}) =>
-  request(`/ai/registry-interop/${registry}/sync`, { method: 'POST', body: JSON.stringify(body) });
+export const registryInteropSync   = (registry, body = {}, options = {}) => request(`/ai/registry-interop/${registry}/sync`, { ...options, method: 'POST', body: JSON.stringify(body) });
 
 // Pass 7 CRUD APIs
 export const correspondingAdjustmentsApi = crud('/corresponding-adjustments');

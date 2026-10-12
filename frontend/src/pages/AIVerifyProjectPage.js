@@ -17,7 +17,7 @@ export default function AIVerifyProjectPage() {
       subtitle="Additionality, leakage, and permanence verification with structured scoring."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiVerifyProject(project)}
+      runAI={(project, requestOptions) => aiVerifyProject(project, requestOptions)}
       examplePrompt="Describe a candidate carbon project. The AI returns an additionality / leakage / permanence verdict with conditions."
       feature="verify-project"
     />

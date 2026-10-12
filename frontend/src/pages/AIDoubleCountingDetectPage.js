@@ -3,7 +3,7 @@ import AIPage from '../components/AIPage';
 import { aiDoubleCountingDetect } from '../services/api';
 
 const fields = [
-  { key: 'credit_id', label: 'Credit ID', required: true, placeholder: 'CR-2021-KEN-027' },
+  { key: 'credit_id', label: 'Credit ID', required: true, placeholder: 'CR-2021-KEN-027', example: 'CR-2021-KEN-027', allowIllustrativeIdentifier: true },
   { key: 'project', label: 'Project', placeholder: 'Kasigau Corridor REDD+' },
   { key: 'vintage_year', label: 'Vintage Year', type: 'number' },
   { key: 'tons_co2e', label: 'tCO2e', type: 'number' },
@@ -18,7 +18,7 @@ export default function AIDoubleCountingDetectPage() {
       subtitle="Score cross-registry double-counting risk on a given credit."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(credit) => aiDoubleCountingDetect(credit)}
+      runAI={(credit, requestOptions) => aiDoubleCountingDetect(credit, requestOptions)}
       examplePrompt="Provide credit fields. AI returns double-counting risk + cross-registry pivots."
       feature="double-counting-detect"
     />

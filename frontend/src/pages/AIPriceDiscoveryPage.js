@@ -14,7 +14,7 @@ export default function AIPriceDiscoveryPage() {
       subtitle="Discover live price bands + liquidity for project_type × vintage from comparables."
       fields={fields}
       buildPayload={(v) => ({ project_type: v.project_type, vintage: v.vintage })}
-      runAI={({ project_type, vintage }) => aiPriceDiscovery(project_type, vintage)}
+      runAI={({ project_type, vintage }, requestOptions) => aiPriceDiscovery(project_type, vintage, requestOptions)}
       examplePrompt="Pick a project type + vintage. AI returns price band + comparable trades."
       feature="price-discovery"
     />

@@ -17,7 +17,7 @@ export default function AIClimateClaimValidatorPage() {
       subtitle="Detect greenwashing risk and check SBTi / VCMI / ISO-14068 / FTC Green-Guides alignment."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(claim) => aiClimateClaimValidator(claim)}
+      runAI={(claim, requestOptions) => aiClimateClaimValidator(claim, requestOptions)}
       examplePrompt="Describe a corporate climate claim. AI returns validity + greenwashing risk."
       feature="climate-claim-validator"
     />

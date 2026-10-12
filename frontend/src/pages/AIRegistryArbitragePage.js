@@ -13,7 +13,7 @@ export default function AIRegistryArbitragePage() {
       subtitle="Cross-registry (Verra / GS / ACR / CAR) price spreads with arbitrage drivers."
       fields={fields}
       buildPayload={(v) => ({ project_type: v.project_type })}
-      runAI={({ project_type }) => aiRegistryArbitrage(project_type)}
+      runAI={({ project_type }, requestOptions) => aiRegistryArbitrage(project_type, requestOptions)}
       examplePrompt="Pick a project type. AI returns indicative pricing per registry + spreads."
       feature="registry-arbitrage"
     />

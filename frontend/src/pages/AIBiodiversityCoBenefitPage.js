@@ -16,7 +16,7 @@ export default function AIBiodiversityCoBenefitPage() {
       subtitle="Score biodiversity impact (species, habitat, IUCN red-list overlap) for a project."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiBiodiversityCoBenefit(project)}
+      runAI={(project, requestOptions) => aiBiodiversityCoBenefit(project, requestOptions)}
       examplePrompt="Describe a project. AI returns biodiversity impact + CCB eligibility verdict."
       feature="biodiversity-co-benefit"
     />

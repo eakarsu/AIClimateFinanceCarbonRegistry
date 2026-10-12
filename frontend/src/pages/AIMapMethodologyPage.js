@@ -17,7 +17,7 @@ export default function AIMapMethodologyPage() {
       subtitle="Auto-match projects to applicable methodologies and surface compliance gaps."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiMapMethodology(project)}
+      runAI={(project, requestOptions) => aiMapMethodology(project, requestOptions)}
       examplePrompt="Describe a project. AI returns ranked methodology recommendations and gap analysis."
       feature="map-methodology"
     />

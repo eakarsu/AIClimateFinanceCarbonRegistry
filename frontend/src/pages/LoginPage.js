@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
 
+const DEMO_EMAIL = process.env.REACT_APP_DEMO_EMAIL || 'registry@carbon.io';
+const DEMO_PASSWORD = process.env.REACT_APP_DEMO_PASSWORD || 'carbon2026';
+
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('registry@carbon.io');
-  const [password, setPassword] = useState('carbon2026');
+  const [email, setEmail] = useState(DEMO_EMAIL);
+  const [password, setPassword] = useState(DEMO_PASSWORD);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -54,12 +57,16 @@ export default function LoginPage() {
           {error && <div className="ai-error" style={{ marginBottom: 12 }}>{error}</div>}
           <button
             type="button"
-            onClick={() => { setEmail(process.env.REACT_APP_DEMO_EMAIL || ''); setPassword(process.env.REACT_APP_DEMO_PASSWORD || ''); }}
-            disabled={!process.env.REACT_APP_DEMO_EMAIL || !process.env.REACT_APP_DEMO_PASSWORD}
-            aria-label="Auto Fill Demo Credentials"
+            onClick={() => {
+              setEmail(DEMO_EMAIL);
+              setPassword(DEMO_PASSWORD);
+              setError(null);
+            }}
+            disabled={loading}
+            aria-label="Fill Demo Credentials"
             style={{ width: '100%', marginBottom: '12px', padding: '10px 14px', borderRadius: '8px', border: '1px solid currentColor', background: 'transparent', cursor: 'pointer' }}
           >
-            Auto Fill Demo Credentials
+            Fill Demo Credentials
           </button>
           <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
             {loading ? 'Signing in…' : 'Sign in'}

@@ -29,7 +29,7 @@ export default function AINarrativeEvidenceReconcilePage() {
         narrative: asObject(v.narrative),
         evidence: asObject(v.evidence),
       })}
-      runAI={({ narrative, evidence }) => aiNarrativeEvidenceReconcile(narrative, evidence)}
+      runAI={({ narrative, evidence }, requestOptions) => aiNarrativeEvidenceReconcile(narrative, evidence, requestOptions)}
       examplePrompt="AI reconciles narrative claims against documented evidence (satellite/attachments/ledger)."
       feature="narrative-evidence-reconcile"
     />

@@ -16,7 +16,7 @@ export default function AIAdditionalityScorerPage() {
       subtitle="Score additionality with explicit counterfactual + investment / barrier / regulatory tests."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiAdditionalityScorer(project)}
+      runAI={(project, requestOptions) => aiAdditionalityScorer(project, requestOptions)}
       examplePrompt="Describe a project. AI returns an additionality score + counterfactual baseline."
       feature="additionality-scorer"
     />

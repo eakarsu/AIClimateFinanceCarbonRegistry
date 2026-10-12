@@ -3,7 +3,7 @@ import AIPage from '../components/AIPage';
 import { aiAmlScreenTransaction } from '../services/api';
 
 const fields = [
-  { key: 'transaction_id', label: 'Transaction ID', required: true, placeholder: 'TX-2025-11789' },
+  { key: 'transaction_id', label: 'Transaction ID', required: true, placeholder: 'TX-2025-11789', example: 'TX-2025-11789', allowIllustrativeIdentifier: true },
   { key: 'from_holder', label: 'From Holder', required: true, placeholder: 'Andes Reforestation S.A.C.' },
   { key: 'to_holder', label: 'To Holder', required: true, placeholder: 'Eurasian Carbon Exchange' },
   { key: 'from_country', label: 'From Country', placeholder: 'Peru' },
@@ -32,7 +32,7 @@ export default function AIAMLScreenTransactionPage() {
           payment_route_jurisdictions: asArray(v.payment_route_jurisdictions),
         },
       })}
-      runAI={({ transaction }) => aiAmlScreenTransaction(transaction)}
+      runAI={({ transaction }, requestOptions) => aiAmlScreenTransaction(transaction, requestOptions)}
       examplePrompt="Describe a transaction. AI returns AML risk score + sanctions hits + typology flags."
       feature="aml-screen-transaction"
     />

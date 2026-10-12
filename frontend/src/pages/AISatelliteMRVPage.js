@@ -16,7 +16,7 @@ export default function AISatelliteMRVPage() {
       subtitle="Derive MRV signal (NDVI delta, canopy loss, alerts) from satellite imagery for a period."
       fields={fields}
       buildPayload={(v) => ({ project: { name: v.name, type: v.type, country: v.country }, imagery_period: v.imagery_period })}
-      runAI={({ project, imagery_period }) => aiSatelliteMRV(project, imagery_period)}
+      runAI={({ project, imagery_period }, requestOptions) => aiSatelliteMRV(project, imagery_period, requestOptions)}
       examplePrompt="Provide a project + imagery period. AI returns MRV signal anchored to satellite observations."
       feature="satellite-mrv"
     />

@@ -14,7 +14,7 @@ export default function AIAnalyzePricingPage() {
       subtitle="Voluntary-carbon-market price bands and 12-month forecasts by project type and vintage."
       fields={fields}
       buildPayload={(v) => ({ project_type: v.project_type, vintage: v.vintage })}
-      runAI={({ project_type, vintage }) => aiAnalyzePricing(project_type, vintage)}
+      runAI={({ project_type, vintage }, requestOptions) => aiAnalyzePricing(project_type, vintage, requestOptions)}
       examplePrompt="Pick a project type and vintage year. AI returns current band, 12-mo forecast, and market drivers."
       feature="analyze-pricing"
     />

@@ -1,3 +1,4 @@
+import ReadableAIReport, { reportText, reportValue } from "./AIResultView";
 import React, { useMemo, useState } from 'react';
 
 /* ============================================================
@@ -375,15 +376,15 @@ function AIResultDisplay({ result, loading, error }) {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(result, null, 2));
+      await navigator.clipboard.writeText(reportText(reportValue(result)));
       setCopied(true); setTimeout(() => setCopied(false), 1400);
     } catch (_) { /* noop */ }
   };
   const download = () => {
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+    const blob = new Blob([reportText(reportValue(result))], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `ai-result-${Date.now()}.json`;
+    a.href = url; a.download = `ai-result-${Date.now()}.txt`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
@@ -393,10 +394,10 @@ function AIResultDisplay({ result, loading, error }) {
       <div className="ai-panel-header">
         <h4>AI Copilot Result</h4>
         <div className="ai-panel-actions">
-          <button className="ai-tool-btn" onClick={copy} title="Copy JSON">{copied ? '✓ Copied' : '⧉ Copy'}</button>
-          <button className="ai-tool-btn" onClick={download} title="Download JSON">↓ Export</button>
-          <button className="ai-tool-btn" onClick={() => setShowRaw((s) => !s)} title="Show raw JSON">
-            {showRaw ? '⌃ Hide raw' : '⌄ Raw'}
+          <button className="ai-tool-btn" onClick={copy} title="Copy report">{copied ? '✓ Copied' : '⧉ Copy'}</button>
+          <button className="ai-tool-btn" onClick={download} title="Download report">↓ Export</button>
+          <button className="ai-tool-btn" onClick={() => setShowRaw((s) => !s)} title="Show full response">
+            {showRaw ? '⌃ Hide details' : '⌄ Full response'}
           </button>
         </div>
       </div>
@@ -420,13 +421,13 @@ function AIResultDisplay({ result, loading, error }) {
 
         {showRaw && (
           <div className="ai-section">
-            <div className="ai-section-title">raw payload</div>
-            <pre className="ai-raw-pre">{JSON.stringify(result, null, 2)}</pre>
+            <div className="ai-section-title">Full response</div>
+            <ReadableAIReport result={result} />
           </div>
         )}
 
         {!sectionEntries.length && !leadSummary && !aiError && raw && (
-          <pre className="ai-raw-pre">{String(raw).slice(0, 2000)}</pre>
+          <ReadableAIReport result={raw} />
         )}
       </div>
     </div>

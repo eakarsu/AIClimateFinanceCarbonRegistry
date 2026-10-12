@@ -192,7 +192,7 @@ function CrudPage({ title, subtitle, columns, fields, api, defaults, statusField
           </thead>
           <tbody>
             {pageItems.map((item) => (
-              <tr key={item.id} onClick={() => handleRowClick(item)}>
+              <tr key={item.id} onClick={() => handleRowClick(item)} tabIndex={0} onKeyDown={(event) => { if ((event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget) { event.preventDefault(); (() => handleRowClick(item))(event); } }}>
                 {columns.map((c) => (
                   <td key={c.key}>
                     {statusFields.includes(c.key)
@@ -240,7 +240,7 @@ function CrudPage({ title, subtitle, columns, fields, api, defaults, statusField
               <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
               <button className="btn btn-secondary" onClick={handleEdit}>Edit</button>
             </div>
-          </div>
+          <div className="modal-footer"><button type="button" className="btn btn-secondary" onClick={() => setSelected(null)}>Cancel</button></div></div>
         </div>
       )}
 

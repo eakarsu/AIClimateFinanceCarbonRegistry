@@ -17,7 +17,7 @@ export default function AIDraftDisclosurePage() {
       subtitle="TCFD-aligned climate disclosure drafts from holder registry activity."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(holder) => aiDraftDisclosure(holder)}
+      runAI={(holder, requestOptions) => aiDraftDisclosure(holder, requestOptions)}
       examplePrompt="Describe a holder. AI produces a TCFD-aligned governance/strategy/risk/metrics draft."
       feature="draft-disclosure"
     />

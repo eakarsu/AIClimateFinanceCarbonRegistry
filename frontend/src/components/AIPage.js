@@ -1,6 +1,9 @@
+import { protectPresetRequest } from './SampleIntegrity';
+import AIFieldPresets, { completeExample } from './AIFieldPresets';
+import useCancelableAI from './useCancelableAI';
 import React, { useEffect, useState } from 'react';
 import { aiHistory, aiSamples } from '../services/api';
-import AIResultDisplay from './AIResultDisplay';
+import AIResultDisplay from './AIResultView';
 
 /**
  * Reusable AI page wrapper.
@@ -15,9 +18,10 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
   const [values, setValues] = useState(() =>
     fields.reduce((acc, f) => ({ ...acc, [f.key]: f.default ?? '' }), {})
   );
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+  const aiRequest = useCancelableAI();
+  const { loading, result, error, setResult, setError } = aiRequest;
+
+
 
   // History modal state
   const [showHistory, setShowHistory] = useState(false);
@@ -36,20 +40,9 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
     return () => { cancelled = true; };
   }, [feature]);
 
-  const fillSample = (sample) => {
-    if (!sample || !sample.values) return;
-    setValues((p) => {
-      const next = { ...p };
-      // Only set keys that the page actually declares — keeps form state clean.
-      for (const f of fields) {
-        if (Object.prototype.hasOwnProperty.call(sample.values, f.key)) {
-          next[f.key] = sample.values[f.key];
-        }
-      }
-      return next;
-    });
-    setResult(null);
-    setError(null);
+  const fillSample = (sample, index = 0) => {
+    setValues(protectPresetRequest(completeExample(fields.map(field => /JSON/i.test(field.label || '') ? { ...field, type: 'json' } : field), sample || {}, index, title, values), values));
+    setResult(null); setError(null);
   };
 
   const handleChange = (e) => {
@@ -57,15 +50,7 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
     setValues((p) => ({ ...p, [name]: type === 'number' ? (value === '' ? '' : Number(value)) : value }));
   };
 
-  const handleRun = async () => {
-    setLoading(true); setResult(null); setError(null);
-    try {
-      const payload = buildPayload(values);
-      const r = await runAI(payload);
-      setResult(r);
-    } catch (e) { setError(e.message); }
-    finally { setLoading(false); }
-  };
+  const handleRun = async () => aiRequest.run((options) => runAI(buildPayload(values), options));
 
   const openHistory = async () => {
     setShowHistory(true);
@@ -83,7 +68,7 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
   };
 
   return (
-    <div>
+    <div className="sr-ai-workspace">
       <div className="page-header">
         <div>
           <h2>{title}</h2>
@@ -98,28 +83,8 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
         <h3>Inputs</h3>
         <p className="desc">{examplePrompt || 'Provide inputs below and press Run to invoke the AI model via OpenRouter.'}</p>
 
-        {samples.length > 0 && (
-          <div
-            className="ai-samples-strip"
-            style={{ display: 'flex', flexWrap: 'wrap', gap: 8, margin: '6px 0 14px', alignItems: 'center' }}
-          >
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted, #64748b)', marginRight: 4 }}>
-              Sample Fill:
-            </span>
-            {samples.map((s, i) => (
-              <button
-                key={i}
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => fillSample(s)}
-                title={`Fill form with: ${s.label}`}
-                style={{ fontSize: 12, padding: '6px 10px' }}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        )}
+        <AIFieldPresets fields={fields} samples={samples} context={title} disabled={loading} onFill={fillSample} />
+      {aiRequest.notice && <div className="sr-notice" role="status">{aiRequest.notice}</div>}
 
         <div className="form-grid">
           {fields.map((f) => (
@@ -148,8 +113,9 @@ function AIPage({ title, subtitle, fields, buildPayload, runAI, examplePrompt, f
 
         <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
           <button className="btn btn-ai" onClick={handleRun} disabled={loading}>
-            {loading ? 'Running…' : '✨ Run AI'}
+            {loading ? 'Running…' : 'Generate with OpenRouter'}
           </button>
+          {loading && <button type="button" className="btn secondary btn-secondary" onClick={aiRequest.cancel}>Cancel</button>}
         </div>
 
         {(loading || error || result) && (

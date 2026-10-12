@@ -17,7 +17,7 @@ export default function AIScope3AttributorPage() {
       subtitle="Attribute scope-3 emissions across GHG-Protocol's 15 upstream/downstream categories."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(holder) => aiScope3Attributor(holder)}
+      runAI={(holder, requestOptions) => aiScope3Attributor(holder, requestOptions)}
       examplePrompt="Describe a holder. AI returns scope-3 attribution by category."
       feature="scope-3-attributor"
     />

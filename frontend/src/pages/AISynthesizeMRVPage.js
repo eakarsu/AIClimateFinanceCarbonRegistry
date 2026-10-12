@@ -19,7 +19,7 @@ export default function AISynthesizeMRVPage() {
       subtitle="Auto-draft MRV reports, monitoring plans, and QA/QC procedures."
       fields={fields}
       buildPayload={(v) => v}
-      runAI={(project) => aiSynthesizeMRV(project)}
+      runAI={(project, requestOptions) => aiSynthesizeMRV(project, requestOptions)}
       examplePrompt="Provide project parameters and the AI returns a structured MRV report draft with monitoring plan."
       feature="synthesize-mrv"
     />
